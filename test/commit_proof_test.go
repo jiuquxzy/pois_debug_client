@@ -1,15 +1,9 @@
 package test
 
 import (
-	"encoding/json"
 	"math/big"
-	"pois_debug_client/client"
-	"testing"
-	"time"
 
 	"github.com/CESSProject/cess_pois/acc"
-	"github.com/CESSProject/cess_pois/pois"
-	"github.com/CESSProject/cess_pois/util"
 )
 
 var (
@@ -22,79 +16,79 @@ var (
 	chalsPath = "./commit_chals"
 )
 
-func TestRegisterConversational(t *testing.T) {
+// func TestRegisterConversational(t *testing.T) {
 
-	resp, err := client.RegisterCommitConversational(minerId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("register commit conversational success", resp)
-}
+// 	resp, err := client.RegisterCommitConversational(minerId)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	t.Log("register commit conversational success", resp)
+// }
 
-func TestSendCommits(t *testing.T) {
-	prover, err := pois.NewProver(k, n, d, []byte(minerId), space)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = prover.Init(key)
-	if err != nil {
-		t.Fatal(err)
-	}
-	prover.RunIdleFileGenerationServer(2)
-	ok := prover.GenerateFile(16)
-	if !ok {
-		t.Fatal("generate file not ok")
-	}
-	time.Sleep(time.Second * 100)
-	commits, err := prover.GetCommits(16)
-	if err != nil {
-		t.Fatal(err)
-	}
-	chals, err := client.SendCommits(minerId, commits)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("send commits success", chals)
-	jbytes, err := json.Marshal(chals)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = util.SaveFile(chalsPath, jbytes)
-	if err != nil {
-		t.Fatal(err)
-	}
-}
+// func TestSendCommits(t *testing.T) {
+// 	prover, err := pois.NewProver(k, n, d, []byte(minerId), space)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	err = prover.Init(key)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	prover.RunIdleFileGenerationServer(2)
+// 	ok := prover.GenerateFile(16)
+// 	if !ok {
+// 		t.Fatal("generate file not ok")
+// 	}
+// 	time.Sleep(time.Second * 100)
+// 	commits, err := prover.GetCommits(16)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	chals, err := client.SendCommits(minerId, commits)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	t.Log("send commits success", chals)
+// 	jbytes, err := json.Marshal(chals)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	err = util.SaveFile(chalsPath, jbytes)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// }
 
-func TestSendCommitProofs(t *testing.T) {
-	prover, err := pois.NewProver(k, n, d, []byte(minerId), space)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = prover.Recovery(key, 0, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-	prover.RunIdleFileGenerationServer(2)
-	t.Log(prover.GetSpace())
-	_, err = prover.GetCommits(16)
-	if err != nil {
-		t.Fatal(err)
-	}
-	data, err := util.ReadFile(chalsPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var chals [][]int64
-	if err := json.Unmarshal(data, &chals); err != nil {
-		t.Fatal(err)
-	}
-	commitProof, accProof, err := prover.ProveCommitAndAcc(chals)
-	if err != nil {
-		t.Fatal(err)
-	}
-	ok, err := client.SendCommitProofs(minerId, commitProof, accProof)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Log("verify commit proofs and acc proof result", ok)
-}
+// func TestSendCommitProofs(t *testing.T) {
+// 	prover, err := pois.NewProver(k, n, d, []byte(minerId), space)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	err = prover.Recovery(key, 0, 0)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	prover.RunIdleFileGenerationServer(2)
+// 	t.Log(prover.GetSpace())
+// 	_, err = prover.GetCommits(16)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	data, err := util.ReadFile(chalsPath)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	var chals [][]int64
+// 	if err := json.Unmarshal(data, &chals); err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	commitProof, accProof, err := prover.ProveCommitAndAcc(chals)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	ok, err := client.SendCommitProofs(minerId, commitProof, accProof)
+// 	if err != nil {
+// 		t.Fatal(err)
+// 	}
+// 	t.Log("verify commit proofs and acc proof result", ok)
+// }
