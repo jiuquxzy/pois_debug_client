@@ -7,8 +7,6 @@ option go_package="../pois_rpc";
 service PoisApi {
   rpc request_miner_get_new_key(RequestMinerInitParam)
       returns (ResponseMinerInitParam) {}
-  rpc request_miner_register(RequestMinerInitParam)
-      returns (ResponseMinerRegister) {}
   rpc request_miner_commit_gen_chall(RequestMinerCommitGenChall)
       returns (Challenge) {}
   rpc request_verify_commit_proof(RequestVerifyCommitAndAccProof)
@@ -19,10 +17,6 @@ service PoisApi {
       returns (ResponseSpaceProofVerifyTotal) {}
   rpc request_verify_deletion_proof(RequestVerifyDeletionProof)
       returns (ResponseVerifyCommitOrDeletionProof) {}
-}
-
-message ResponseMinerRegister{
-  bool status = 1;
 }
 
 message RequestMinerInitParam{
@@ -42,6 +36,8 @@ message ResponseMinerInitParam{
 message RequestMinerCommitGenChall {
   bytes miner_id = 1;
   Commits commit = 2;
+  MinerPoisInfo pois_info = 3;
+  bytes miner_sign = 4;
 }
 
 message Commits {
@@ -49,8 +45,18 @@ message Commits {
   repeated bytes roots = 2;
 }
 
+message MinerPoisInfo {
+  bytes acc = 1;
+  int64 front = 2;
+  int64 rear = 3;
+  bytes key_n = 4;
+  bytes key_g = 5;
+  bytes status_tee_sign = 6;
+}
+
 message Challenge {
   repeated Int64Slice rows = 1;
+  bytes chall_tee_sign = 2;
 }
 message Int64Slice {
   repeated int64 values = 1;
@@ -60,8 +66,7 @@ message RequestVerifyCommitAndAccProof {
   CommitProofGroup commit_proof_group = 1;
   AccProof acc_proof = 2;
   bytes miner_id = 3;
-  bytes key_n = 4;
-  bytes key_g = 5;
+  bytes miner_sign = 4;
 }
 message CommitProofGroup {
   repeated CommitProofGroupInner commit_proof_group_inner = 1;
@@ -72,6 +77,7 @@ message CommitProofGroupInner {
 message CommitProof {
   MhtProof node = 1;
   repeated MhtProof parents = 2;
+  repeated MhtProof elders = 3;
 }
 message MhtProof {
   int32 index = 1;
@@ -106,13 +112,9 @@ message PoisStatus{
 message RequestSpaceProofVerify{
   repeated int64 space_chals =1;
   bytes miner_id = 2;
-  bytes key_n = 3;
-  bytes key_g = 4;
-  bytes acc = 5;
-  int64 front = 6;
-  int64 rear = 7;
-  SpaceProof proof = 8;
-  bytes miner_space_proof_hash_polkadot_sig = 9;
+  MinerPoisInfo pois_info = 3;
+  SpaceProof proof = 4;
+  bytes miner_space_proof_hash_polkadot_sig = 5;
 }
 
 message SpaceProof {
@@ -127,6 +129,7 @@ message ProofHashAndLeftRight {
   bytes space_proof_hash = 1;
   int64 left = 2;
   int64 right = 3;
+  bytes tee_id = 4;
 }
 
 message MhtProofGroup {
@@ -171,6 +174,6 @@ message RequestVerifyDeletionProof {
   AccWitnessNode wit_chain = 2;
   repeated bytes acc_path = 3;
   bytes miner_id = 4;
-  bytes key_n = 5;
-  bytes key_g = 6;
+  MinerPoisInfo pois_info = 5;
+  bytes miner_sign = 6;
 }
