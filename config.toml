@@ -2,5 +2,5 @@ k=8
 n=1048576
 d=64
 space =134217728
-miner_id="12D3KooWPBNzvjQtLEaDHBLACgZYBW9uHQyUtSvNoFnBm8GVPAJ4"
-tee_addr="221.122.79.5:7001"
+minerId="cXg7ndid3PeUgWVu4Mv47vPxj5pEwwKMH2obc2PLtQbYeo2S8"
+teeAddr="221.122.79.5:10010"

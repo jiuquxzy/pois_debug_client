@@ -21,7 +21,7 @@ func SendCommits(minerId []byte, key acc.RsaKey, front, rear int64, acc []byte, 
 	}
 	defer conn.Close()
 	cli := pois_rpc.NewPoisApiClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 	tsCommits := pois_rpc.Commits{
 		FileIndexs: commits.FileIndexs,
@@ -68,7 +68,7 @@ func SendCommitProofs(minerId []byte, commitProofs [][]pois.CommitProof, accProo
 	}
 	defer conn.Close()
 	cli := pois_rpc.NewPoisApiClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 	commitGroup := &pois_rpc.CommitProofGroup{
 		CommitProofGroupInner: make([]*pois_rpc.CommitProofGroupInner, len(commitProofs)),
@@ -157,7 +157,7 @@ func SendSpaceProof(minerId []byte, chal []int64, key acc.RsaKey, front, rear in
 	}
 	defer conn.Close()
 	cli := pois_rpc.NewPoisApiClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	mhtProofGroup := make([]*pois_rpc.MhtProofGroup, len(spaceProof.Proofs))
@@ -211,18 +211,26 @@ func SendSpaceProof(minerId []byte, chal []int64, key acc.RsaKey, front, rear in
 		KeyG:  key.G.Bytes(),
 	}
 
-	resp, err := cli.RequestSpaceProofVerifySingleBlock(ctx,
-		&pois_rpc.RequestSpaceProofVerify{
-			SpaceChals: chal,
-			MinerId:    minerId,
-			PoisInfo:   poisInfo,
-			Proof:      proof,
-		})
+	reqParam := &pois_rpc.RequestSpaceProofVerify{
+		SpaceChals: chal,
+		MinerId:    minerId,
+		PoisInfo:   poisInfo,
+		Proof:      proof,
+	}
+
+	// data, err := proto.Marshal(reqParam)
+	// if err != nil {
+	// 	return false, err
+	// }
+
+	// os.WriteFile("data", data, 0777)
+
+	resp, err := cli.RequestSpaceProofVerifySingleBlock(ctx, reqParam)
 
 	if err != nil {
 		return false, err
 	}
-	log.Println("response", resp.Signature)
+	log.Println("response data len", len(resp.Signature))
 	return true, nil
 }
 
@@ -244,7 +252,7 @@ func SendDeletionProof(minerId []byte, key acc.RsaKey, front, rear int64, acc []
 	}
 	defer conn.Close()
 	cli := pois_rpc.NewPoisApiClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	witChain := &pois_rpc.AccWitnessNode{

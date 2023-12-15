@@ -13,8 +13,8 @@ type Config struct {
 	N       int64  `name:"N" toml:"n"`
 	D       int64  `name:"D" toml:"d"`
 	Space   int64  `name:"Space" toml:"space"`
-	MinerId string `name:"MinerId" toml:"miner_id"`
-	TeeAddr string `name:"TeeAddr" toml:"tee_addr"`
+	MinerId string `name:"MinerId" toml:"minerId"`
+	TeeAddr string `name:"TeeAddr" toml:"teeAddr"`
 }
 
 const DEFAULT_CONFIG_PATH = "./config.toml"

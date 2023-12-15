@@ -6,13 +6,22 @@ import (
 	"pois_debug_client/config"
 	"pois_debug_client/utils"
 	"sync"
+	"time"
 
 	"github.com/CESSProject/cess_pois/pois"
 	"github.com/pkg/errors"
 )
 
+var pois_config = pois.Config{
+	AccPath:        "./test_data/acc/",
+	ChallAccPath:   "./test_data/chall_acc/",
+	IdleFilePath:   "./test_data/proofs/",
+	MaxProofThread: 16,
+}
+
 func GenPoisInitialParams() error {
 	conf := config.GetConfig()
+	log.Println("config", conf)
 	minerId, err := utils.ParsingPublickey(conf.MinerId)
 	if err != nil {
 		return errors.Wrap(err, "generate pois initial params error")
@@ -21,7 +30,7 @@ func GenPoisInitialParams() error {
 	if err != nil {
 		return errors.Wrap(err, "generate pois initial params error")
 	}
-	err = prover.Init(config.GetPoisKey(), pois.Config{})
+	err = prover.Init(config.GetPoisKey(), pois_config)
 	//err = prover.Recovery(key, 0, 0, pois.Config{})
 	if err != nil {
 		return errors.Wrap(err, "generate pois initial params error")
@@ -45,7 +54,7 @@ func RequestToGetChallenge(reqNum int) error {
 	if err != nil {
 		return errors.Wrap(err, "generate pois initial params error")
 	}
-	err = prover.Recovery(config.GetPoisKey(), 0, 0, pois.Config{})
+	err = prover.Recovery(config.GetPoisKey(), 0, 0, pois_config)
 	//err = prover.Recovery(key, 0, 0, pois.Config{})
 	if err != nil {
 		return errors.Wrap(err, "request to get commitment challenge error")
@@ -89,7 +98,7 @@ func RequestToProveCommitProof(num int) error {
 	if err != nil {
 		return errors.Wrap(err, "request to prove commitment proof error")
 	}
-	err = prover.Recovery(config.GetPoisKey(), 0, 0, pois.Config{})
+	err = prover.Recovery(config.GetPoisKey(), 0, 0, pois_config)
 	//err = prover.Recovery(key, 0, 0, pois.Config{})
 	if err != nil {
 		return errors.Wrap(err, "request to prove commitment proof error")
@@ -111,6 +120,8 @@ func RequestToProveCommitProof(num int) error {
 	if err != nil {
 		return errors.Wrap(err, "request to prove commitment proof error")
 	}
+	log.Println("request data is ready")
+	time.Sleep(15 * time.Second)
 
 	if num <= 0 {
 		num = 1
@@ -144,7 +155,7 @@ func RequestToProveSpaceProof(num int) error {
 	if err != nil {
 		return errors.Wrap(err, "request to prove space proof error")
 	}
-	err = prover.Recovery(config.GetPoisKey(), 0, 256, pois.Config{})
+	err = prover.Recovery(config.GetPoisKey(), 0, 256, pois_config)
 	if err != nil {
 		return errors.Wrap(err, "request to prove space proof error")
 	}
@@ -173,6 +184,7 @@ func RequestToProveSpaceProof(num int) error {
 	}
 	wg := sync.WaitGroup{}
 	wg.Add(num)
+	st := time.Now()
 	for i := 0; i < num; i++ {
 		go func() {
 			defer wg.Done()
@@ -188,6 +200,7 @@ func RequestToProveSpaceProof(num int) error {
 		}()
 	}
 	wg.Wait()
+	log.Println("test RequestToProveSpaceProof time", time.Since(st))
 	return nil
 }
 
